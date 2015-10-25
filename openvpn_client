@@ -1,0 +1,77 @@
+#!/usr/bin/python3
+__author__ = 'Nick Apperley'
+
+import os
+import pwd
+import pexpect
+import sys
+from gui.main_window import MainWindow
+from PyQt5.QtWidgets import QMessageBox, QInputDialog, QLineEdit, QApplication
+
+test = False
+py_interpreter = '/home/napperley/python_virtual_env/pyqt5_env/bin/python3'
+
+
+def _show_error_dialog(title, msg):
+    # noinspection PyTypeChecker
+    QMessageBox.critical(None, title, msg, QMessageBox.Close)
+
+
+def _run_bootstrap(password):
+    bootstrap_file = '{}/bootstrap.py'.format(os.path.dirname(os.path.abspath(__file__)))
+    username = pwd.getpwuid(os.getuid())[0]
+    # Set timeout in seconds.
+    timeout = 5
+    title = 'OpenVPN Client'
+    msg = 'Incorrect Sudo password. Program will now exit'
+    process = None
+
+    try:
+        process = pexpect.spawn('sudo {} {}'.format(py_interpreter, bootstrap_file), timeout=timeout)
+        process.expect('password for {}:'.format(username))
+        process.sendline(password)
+        print('Attempting to run OpenVPN Client...')
+    except pexpect.TIMEOUT:
+        _show_error_dialog(title, msg)
+        exit(-1)
+
+
+def _test():
+    print('Running program in test mode')
+    # Must assign an instance of QApplication to a variable otherwise a Segmentation Fault will occur.
+    app = QApplication(sys.argv)
+    # Must assign an instance of MainWindow to a variable otherwise the main window won't display.
+    main_window = MainWindow()
+    # Keep the program running.
+    sys.exit(app.exec_())
+
+
+def _main():
+    password_pos = 0
+    ok_pos = 1
+    dialog_input = ()
+    app = None
+    error_msg = 'Program must have root access. Will now exit.'
+    permission_msg = 'Password: '
+    title = 'OpenVPN Client'
+
+    if test is True:
+        _test()
+    else:
+        # Must assign an instance of QApplication to a variable otherwise a Segmentation Fault will occur.
+        app = QApplication(sys.argv)
+        # Display an input dialog asking for the sudo password and store the result.
+        # noinspection PyTypeChecker
+        dialog_input = QInputDialog.getText(None, title, permission_msg, QLineEdit.Password)
+        if dialog_input[ok_pos] is True:
+            _run_bootstrap(dialog_input[password_pos])
+        else:
+            _show_error_dialog(title, error_msg)
+            exit(-1)
+
+
+if __name__ == '__main__':
+    try:
+        _main()
+    except KeyboardInterrupt:
+        print('\nExiting...')
