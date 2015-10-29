@@ -53,16 +53,16 @@ def _create_conf_dir(username):
         shutil.chown(conf_dir, user=username, group=username)
 
 
-def add_connection(conn_name, addr):
+def add_connection(conn_name, conf_dir, ovpn_file):
     if connections is not None:
-        connections[conn_name] = {'addr': addr}
+        connections[conn_name] = {'conf-dir': conf_dir, 'ovpn-file': ovpn_file}
         _save_connections()
 
 
-def edit_connection(old_conn_name, new_conn_name, addr):
+def edit_connection(old_conn_name, new_conn_name, conf_dir, ovpn_file):
     if connections is not None:
         del connections[old_conn_name]
-        connections[new_conn_name] = {'addr': addr}
+        connections[new_conn_name] = {'conf-dir': conf_dir, 'ovpn-file': ovpn_file}
         _save_connections()
 
 

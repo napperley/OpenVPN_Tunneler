@@ -31,3 +31,4 @@ def open_vpn_connection(username, password, conf_dir, ovpn_file):
 def close_vpn_connection(process):
     if process is not None:
         process.kill(0)
+        print('Disconnected')

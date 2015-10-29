@@ -2,8 +2,10 @@ __author__ = 'Nick Apperley'
 
 import os
 import connections_model
+import openvpn
 from gui.add_connection_dialog import AddConnectionDialog
 from gui.edit_connection_dialog import EditConnectionDialog
+from gui.connect_dialog import ConnectDialog
 from PyQt5.QtWidgets import QMainWindow, QAction, QApplication, QTableWidget, QTableWidgetItem, QMessageBox
 from PyQt5 import uic
 
@@ -17,22 +19,24 @@ class MainWindow(QMainWindow):
 
         super().__init__()
         self.username = username
+        self.vpn_process = None
         uic.loadUi(ui_file, self)
         self._setup_ui()
         self._setup_events()
 
     def _setup_ui(self):
         pos = 0
-        header = ['Connection Name', 'Address']
+        header = ['Connection Name', 'OVPN File']
         # Must specify a type as the first argument to the findChild method otherwise an error will be thrown.
         tbl = self.findChild(QTableWidget, 'connections_tbl')
 
+        self.statusBar().showMessage('Not connected to a VPN')
         tbl.setHorizontalHeaderLabels(header)
         connections_model.load_connections(self.username)
         tbl.setRowCount(len(connections_model.connections))
         for key, i in connections_model.connections.items():
             tbl.setItem(pos, MainWindow.name_col, QTableWidgetItem(key))
-            tbl.setItem(pos, MainWindow.addr_col, QTableWidgetItem(i['addr']))
+            tbl.setItem(pos, MainWindow.addr_col, QTableWidgetItem(i['ovpn-file']))
         tbl.resizeColumnsToContents()
 
     def _setup_events(self):
@@ -42,13 +46,51 @@ class MainWindow(QMainWindow):
         remove_conn_action = self.findChild(QAction, 'remove_conn_action')
         # Must specify a type as the first argument to the findChild method otherwise an error will be thrown.
         edit_conn_action = self.findChild(QAction, 'edit_conn_action')
+        # Must specify a type as the first argument to the findChild method otherwise an error will be thrown.
+        connect_action = self.findChild(QAction, 'connect_action')
 
         add_conn_action.triggered.connect(self.show_add_connection_dialog)
         edit_conn_action.triggered.connect(self.show_edit_connection_dialog)
         remove_conn_action.triggered.connect(self.remove_connection)
+        connect_action.triggered.connect(self.toggle_connection)
+
+    def toggle_connection(self):
+        connect_action = self.findChild(QAction, 'connect_action')
+
+        if connect_action.text() == 'Connect':
+            self.connect_vpn()
+        else:
+            self.disconnect_vpn()
+
+    def disconnect_vpn(self):
+        connect_action = self.findChild(QAction, 'connect_action')
+
+        openvpn.close_vpn_connection(self.vpn_process)
+        self.vpn_process = None
+        self.statusBar().showMessage('Disconnected')
+        connect_action.setText('Connect')
+
+    def connect_vpn(self):
+        no_selection = -1
+        tbl = self.findChild(QTableWidget, 'connections_tbl')
+        connection = {}
+        dialog = None
+
+        if tbl.currentRow() != no_selection:
+            connection = connections_model.connections[tbl.item(tbl.currentRow(), MainWindow.name_col).text()]
+            dialog = ConnectDialog(connection['conf-dir'], connection['ovpn-file'])
+            dialog.vpn_connected.connect(self.vpn_connected)
+            dialog.show()
+
+    def vpn_connected(self, vpn_process):
+        connect_action = self.findChild(QAction, 'connect_action')
+
+        self.vpn_process = vpn_process
+        self.statusBar().showMessage('Connected')
+        connect_action.setText('Disconnect')
 
     def show_add_connection_dialog(self):
-        dialog = AddConnectionDialog()
+        dialog = AddConnectionDialog(self.username)
 
         dialog.connection_added.connect(self.add_connection)
         dialog.show()
@@ -58,7 +100,7 @@ class MainWindow(QMainWindow):
         tbl = self.findChild(QTableWidget, 'connections_tbl')
 
         if tbl.currentRow() != no_selection:
-            dialog = EditConnectionDialog(tbl.item(tbl.currentRow(), MainWindow.name_col).text())
+            dialog = EditConnectionDialog(self.username, tbl.item(tbl.currentRow(), MainWindow.name_col).text())
             dialog.connection_changed.connect(self.edit_connection)
             dialog.show()
 
@@ -67,21 +109,21 @@ class MainWindow(QMainWindow):
         self.move(QApplication.desktop().screen().rect().center() - self.rect().center())
 
     # Event handler (listener).
-    def add_connection(self, conn_name, addr):
+    def add_connection(self, conn_name, conf_dir, ovpn_file):
         tbl = self.findChild(QTableWidget, 'connections_tbl')
 
         tbl.setRowCount(tbl.rowCount() + 1)
         tbl.setItem(tbl.rowCount() - 1, MainWindow.name_col, QTableWidgetItem(conn_name))
-        tbl.setItem(tbl.rowCount() - 1, MainWindow.addr_col, QTableWidgetItem(addr))
+        tbl.setItem(tbl.rowCount() - 1, MainWindow.addr_col, QTableWidgetItem(ovpn_file))
         tbl.resizeColumnsToContents()
 
     # Event handler (listener).
-    def edit_connection(self, conn_name, addr):
+    def edit_connection(self, conn_name, conf_dir, ovpn_file):
         tbl = self.findChild(QTableWidget, 'connections_tbl')
         current_row = tbl.currentRow()
 
         tbl.item(current_row, MainWindow.name_col).setText(conn_name)
-        tbl.item(current_row, MainWindow.addr_col).setText(addr)
+        tbl.item(current_row, MainWindow.addr_col).setText(ovpn_file)
         tbl.resizeColumnsToContents()
 
     def remove_connection(self):
@@ -89,11 +131,11 @@ class MainWindow(QMainWindow):
         tbl = self.findChild(QTableWidget, 'connections_tbl')
         title = 'OpenVPN Client'
         msg = 'Remove selected row'
-        dialog_input = None
+        dialog_result = None
 
         if tbl.currentRow() != no_selection:
             # noinspection PyCallByClass,PyTypeChecker
-            dialog_input = QMessageBox.question(self, title, msg, QMessageBox.Yes | QMessageBox.No)
-            if dialog_input == QMessageBox.Yes:
+            dialog_result = QMessageBox.question(self, title, msg, QMessageBox.Yes | QMessageBox.No)
+            if dialog_result == QMessageBox.Yes:
                 connections_model.remove_connection(tbl.item(tbl.currentRow(), MainWindow.name_col).text())
                 tbl.removeRow(tbl.currentRow())

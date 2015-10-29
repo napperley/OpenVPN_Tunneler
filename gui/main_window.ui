@@ -68,6 +68,7 @@
    <addaction name="add_conn_action"/>
    <addaction name="edit_conn_action"/>
    <addaction name="remove_conn_action"/>
+   <addaction name="connect_action"/>
   </widget>
   <action name="add_conn_action">
    <property name="text">
@@ -82,6 +83,11 @@
   <action name="remove_conn_action">
    <property name="text">
     <string>Remove Connection</string>
+   </property>
+  </action>
+  <action name="connect_action">
+   <property name="text">
+    <string>Connect</string>
    </property>
   </action>
  </widget>

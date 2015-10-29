@@ -8,7 +8,7 @@ import sys
 from gui.main_window import MainWindow
 from PyQt5.QtWidgets import QMessageBox, QInputDialog, QLineEdit, QApplication
 
-test = True
+test = False
 py_interpreter = '/home/napperley/python_virtual_env/pyqt5_env/bin/python3'
 
 
@@ -27,7 +27,7 @@ def _run_bootstrap(password):
     process = None
 
     try:
-        process = pexpect.spawn('sudo {} {}'.format(py_interpreter, bootstrap_file), timeout=timeout)
+        process = pexpect.spawn('sudo {} {} {}'.format(py_interpreter, bootstrap_file, username), timeout=timeout)
         process.expect('password for {}:'.format(username))
         process.sendline(password)
         print('Attempting to run OpenVPN Client...')
@@ -53,7 +53,7 @@ def _test():
 def _main():
     password_pos = 0
     ok_pos = 1
-    dialog_input = ()
+    dialog_result = ()
     app = None
     error_msg = 'Program must have root access. Will now exit.'
     permission_msg = 'Password: '
@@ -66,9 +66,9 @@ def _main():
         app = QApplication(sys.argv)
         # Display an input dialog asking for the sudo password and store the result.
         # noinspection PyTypeChecker
-        dialog_input = QInputDialog.getText(None, title, permission_msg, QLineEdit.Password)
-        if dialog_input[ok_pos] is True:
-            _run_bootstrap(dialog_input[password_pos])
+        dialog_result = QInputDialog.getText(None, title, permission_msg, QLineEdit.Password)
+        if dialog_result[ok_pos] is True:
+            _run_bootstrap(dialog_result[password_pos])
         else:
             _show_error_dialog(title, error_msg)
             exit(-1)
