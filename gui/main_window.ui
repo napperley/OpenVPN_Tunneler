@@ -17,13 +17,27 @@
    <property name="statusTip">
     <string/>
    </property>
-   <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="0">
-     <layout class="QGridLayout" name="gridLayout_2">
-      <item row="0" column="0">
-       <widget class="QTableWidget" name="tableWidget"/>
-      </item>
-     </layout>
+   <layout class="QVBoxLayout" name="main_layout">
+    <item>
+     <widget class="QTableWidget" name="connections_tbl">
+      <property name="editTriggers">
+       <set>QAbstractItemView::NoEditTriggers</set>
+      </property>
+      <property name="selectionMode">
+       <enum>QAbstractItemView::SingleSelection</enum>
+      </property>
+      <property name="selectionBehavior">
+       <enum>QAbstractItemView::SelectRows</enum>
+      </property>
+      <property name="sortingEnabled">
+       <bool>true</bool>
+      </property>
+      <property name="columnCount">
+       <number>2</number>
+      </property>
+      <column/>
+      <column/>
+     </widget>
     </item>
    </layout>
   </widget>
@@ -51,21 +65,21 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
-   <addaction name="action_add_conn"/>
-   <addaction name="action_edit_conn"/>
-   <addaction name="action_remove_conn"/>
+   <addaction name="add_conn_action"/>
+   <addaction name="edit_conn_action"/>
+   <addaction name="remove_conn_action"/>
   </widget>
-  <action name="action_add_conn">
+  <action name="add_conn_action">
    <property name="text">
     <string>Add Connection</string>
    </property>
   </action>
-  <action name="action_edit_conn">
+  <action name="edit_conn_action">
    <property name="text">
     <string>Edit Connection</string>
    </property>
   </action>
-  <action name="action_remove_conn">
+  <action name="remove_conn_action">
    <property name="text">
     <string>Remove Connection</string>
    </property>

@@ -8,7 +8,7 @@ import sys
 from gui.main_window import MainWindow
 from PyQt5.QtWidgets import QMessageBox, QInputDialog, QLineEdit, QApplication
 
-test = False
+test = True
 py_interpreter = '/home/napperley/python_virtual_env/pyqt5_env/bin/python3'
 
 
@@ -40,8 +40,12 @@ def _test():
     print('Running program in test mode')
     # Must assign an instance of QApplication to a variable otherwise a Segmentation Fault will occur.
     app = QApplication(sys.argv)
+    username = pwd.getpwuid(os.getuid())[0]
     # Must assign an instance of MainWindow to a variable otherwise the main window won't display.
-    main_window = MainWindow()
+    main_window = MainWindow(username)
+
+    main_window.center()
+    main_window.show()
     # Keep the program running.
     sys.exit(app.exec_())
 
