@@ -8,8 +8,8 @@ import sys
 from gui.main_window import MainWindow
 from PyQt5.QtWidgets import QMessageBox, QInputDialog, QLineEdit, QApplication
 
-test = False
-py_interpreter = '/home/napperley/python_virtual_env/pyqt5_env/bin/python3'
+test = True
+py_interpreter = '/usr/bin/python3'
 
 
 def _show_error_dialog(title, msg):

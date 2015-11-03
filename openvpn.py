@@ -1,4 +1,4 @@
-__author__ = 'napperley'
+__author__ = 'Nick Apperley'
 
 # -*- coding: utf-8 -*-
 #
@@ -9,6 +9,7 @@ __author__ = 'napperley'
 # Copyright 2015 Nick Apperley
 
 import pexpect
+from invalid_credentials_error import InvalidCredentialsError
 
 # Set the timeout in seconds.
 timeout = 15
@@ -17,14 +18,21 @@ timeout = 15
 def open_vpn_connection(username, password, conf_dir, ovpn_file):
     process = pexpect.spawn('openvpn %s' % ovpn_file, cwd=conf_dir, timeout=timeout)
 
-    process.expect('Enter Auth Username:')
-    process.sendline(username)
-    process.expect('Enter Auth Password:')
-    process.sendline(password)
+    try:
+        process.expect('Enter Auth Username:')
+        process.sendline(username)
+        process.expect('Enter Auth Password:')
+        process.sendline(password)
 
-    print('Connecting...')
-    process.expect('Initialization Sequence Completed')
-    print('Connected')
+        print('Connecting...')
+        process.expect('Initialization Sequence Completed')
+        print('Connected')
+    except pexpect.EOF:
+        print('Invalid username and/or password')
+        raise InvalidCredentialsError('Invalid OpenVPN username and/or password')
+    except pexpect.TIMEOUT:
+        print('Connection failed!')
+        raise TimeoutError('Cannot connect to OpenVPN server')
     return process
 
 

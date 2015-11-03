@@ -10,6 +10,11 @@ connections = None
 
 
 def load_connections(username):
+    """
+    Loads all connections from the model (JSON file) for the specified user into memory.
+    :type username: str
+    :param username: Name of the user.
+    """
     global model_file
     global connections
     read_mode = 'r'
@@ -54,12 +59,32 @@ def _create_conf_dir(username):
 
 
 def add_connection(conn_name, conf_dir, ovpn_file):
+    """
+    Adds a new connection to the model.
+    :type conn_name: str
+    :type conf_dir: str
+    :type ovpn_file: str
+    :param conn_name:  Connection name.
+    :param conf_dir:  Path to the configuration directory.
+    :param ovpn_file: Path to the OVPN file.
+    """
     if connections is not None:
         connections[conn_name] = {'conf-dir': conf_dir, 'ovpn-file': ovpn_file}
         _save_connections()
 
 
 def edit_connection(old_conn_name, new_conn_name, conf_dir, ovpn_file):
+    """
+    Changes an existing connection in the model.
+    :type old_conn_name: str
+    :type new_conn_name: str
+    :type conf_dir: str
+    :type ovpn_file: str
+    :param old_conn_name: Old connection name.
+    :param new_conn_name: New connection name.
+    :param conf_dir: Path to the configuration directory.
+    :param ovpn_file: Path to the OVPN file.
+    """
     if connections is not None:
         del connections[old_conn_name]
         connections[new_conn_name] = {'conf-dir': conf_dir, 'ovpn-file': ovpn_file}
@@ -67,6 +92,11 @@ def edit_connection(old_conn_name, new_conn_name, conf_dir, ovpn_file):
 
 
 def remove_connection(conn_name):
+    """
+    Removes an existing connection from the model.
+    :type conn_name: str
+    :param conn_name: Connection name.
+    """
     if connections is not None:
         del connections[conn_name]
         _save_connections()
