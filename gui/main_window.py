@@ -151,7 +151,7 @@ class MainWindow(QMainWindow):
         """
         no_selection = -1
         tbl = self.findChild(QWidget, 'connections_tbl')
-        title = 'OpenVPN Client'
+        title = 'OpenVPN Tunneler'
         msg = 'Remove selected row'
         dialog_result = None
 

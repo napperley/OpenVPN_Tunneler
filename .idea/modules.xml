@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/openvpn_client.iml" filepath="$PROJECT_DIR$/.idea/openvpn_client.iml" />
+      <module fileurl="file://$USER_HOME$/pycharm_projects/openvpn_tunneler/.idea/openvpn_tunneler.iml" filepath="$USER_HOME$/pycharm_projects/openvpn_tunneler/.idea/openvpn_tunneler.iml" />
     </modules>
   </component>
 </project>

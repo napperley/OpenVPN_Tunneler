@@ -20,7 +20,7 @@ def load_connections(username):
     read_mode = 'r'
 
     if connections is None:
-        model_file = '/home/{}/.openvpn_client/connections.json'.format(username)
+        model_file = '/home/{}/.openvpn_tunneler/connections.json'.format(username)
         _create_model(username)
         with open(model_file, read_mode):
             connections = json.load(open(model_file, read_mode))
@@ -49,7 +49,7 @@ def _create_model(username):
 
 
 def _create_conf_dir(username):
-    conf_dir = '/home/{}/.openvpn_client'.format(username)
+    conf_dir = '/home/{}/.openvpn_tunneler'.format(username)
     # Use the following mode: u=rwx, g=rx, o-rwx
     mode = stat.S_IRWXU | stat.S_IRGRP + stat.S_IXGRP | 00
 

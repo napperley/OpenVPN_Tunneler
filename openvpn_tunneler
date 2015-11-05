@@ -8,7 +8,7 @@ import sys
 from gui.main_window import MainWindow
 from PyQt5.QtWidgets import QMessageBox, QInputDialog, QLineEdit, QApplication
 
-test = True
+test = False
 py_interpreter = '/usr/bin/python3'
 
 
@@ -22,7 +22,7 @@ def _run_bootstrap(password):
     username = pwd.getpwuid(os.getuid())[0]
     # Set timeout in seconds.
     timeout = 5
-    title = 'OpenVPN Client'
+    title = 'OpenVPN Tunneler'
     msg = 'Incorrect Sudo password. Program will now exit'
     process = None
 
@@ -57,7 +57,7 @@ def _main():
     app = None
     error_msg = 'Program must have root access. Will now exit.'
     permission_msg = 'Password: '
-    title = 'OpenVPN Client'
+    title = 'OpenVPN Tunneler'
 
     if test is True:
         _test()
